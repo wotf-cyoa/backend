@@ -7,7 +7,7 @@ def start
 
   if action == "1"
     puts "You sit down at the bar."
-
+    
   elsif action == "2"
     puts "You sit down at an empty corner table."
     
@@ -23,12 +23,14 @@ def bar_sit
   puts "1. Order a cup of coffee"
   puts "2. Order a glass of water"
 
+  
+
   if action == "1"
     puts "You order a cup of coffee."
-    look_around()
+    #look_around()
   elsif action == "2"
     puts "You order a glass of water."
-    look_around()
+    #look_around()
   else
     puts "Invalid option."
     bar_sit()
@@ -36,4 +38,5 @@ def bar_sit
 end
 
 def table_sit
+  
 end
