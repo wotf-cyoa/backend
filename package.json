@@ -1,26 +1,12 @@
 {
-    "name": "ruby-adventure",
+    "name": "wotf-cyoa-backend",
     "description": "",
     "version": "0.0.1",
     "repository": {
         "type": "git",
-        "url": "git@github.com:mgarbacz/wotf-cyoa.git"
+        "url": "git@github.com:wotf-cyoa/backend.git"
     },
     "dependencies": {
         "socket.io": "1.0.x",
-
-        "express": "3.4.x",
-
-        "brunch" : "1.7.x",
-
-        "javascript-brunch": ">= 1.0 < 1.8",
-
-        "css-brunch": ">= 1.0 < 1.8",
-        "sass-brunch": ">= 1.0 < 1.8",
-
-        "uglify-js-brunch": ">= 1.0 < 1.8",
-        "clean-css-brunch": ">= 1.0 < 1.8",
-
-        "auto-reload-brunch": ">= 1.0 < 1.8"
     }
 }
