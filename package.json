@@ -7,6 +7,6 @@
         "url": "git@github.com:wotf-cyoa/backend.git"
     },
     "dependencies": {
-        "socket.io": "1.0.x",
+        "socket.io": "1.0.x"
     }
 }
