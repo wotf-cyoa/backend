@@ -45,7 +45,7 @@ io.of('/ruby').on('connection', function(socket) {
         setTimeout(function() {
             ruby.stdin.write(data.input + '\n');
             socket.emit('fileLoaded', {
-              output: 'Loaded!'
+              output: 'Game loaded.'
             });
         }, 1000);
     });
@@ -60,7 +60,7 @@ io.of('/ruby').on('connection', function(socket) {
         console.log(data);
         fs.writeFile('games/game.rb', data.fileContent, function(err) {
             socket.emit('fileSaved', {
-                output: err || 'Saved!'
+                output: err || 'Code saved.'
             });
         });
     });
