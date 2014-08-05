@@ -108,12 +108,19 @@ io.of('/ruby').on('connection', function(socket) {
     socket.on('reportUserid', function(data) {
         console.log(data.userid);
         console.log(connectedUsers[data.userid]);
-        if (data.userid && !connectedUsers[data.userid]) {
+        var oldSocket = connectedUsers[data.userid];
+        var newOrAuthenticatedUser = !oldSocket || oldSocket === data.authid;
+
+        if (data.userid && newOrAuthenticatedUser) {
             userid = data.userid;
         } else userid = generateUserid();
 
-        connectedUsers[userid] = true;
-        socket.emit('confirmUserid', { userid: userid });
+        // Store socket id because XHR polling causes race conditions
+        connectedUsers[userid] = socket.id;
+        socket.emit('confirmUserid', {
+            userid: userid,
+            authid: socket.id
+        });
 
         fs.readFile('games/' + userid + '.rb', function(error, contents) {
             if (error) {
@@ -134,7 +141,8 @@ io.of('/ruby').on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('User ' + userid + 'disconnected.');
-        connectedUsers[userid] = false;
+        // Only set to false if user doesn't already have a new socket
+        if (socket.id == connectedUsers[userid]) connectedUsers[userid] = false;
         console.log(connectedUsers);
     });
 
