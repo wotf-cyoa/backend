@@ -97,8 +97,7 @@ io.of('/ruby').on('connection', function(socket) {
         socketOn = true;
         if (ruby) {
             ruby.stdin.write(data.input + '\n');
-        }
-        else {
+        } else {
             socket.emit('terminalError', {
                 output: 'Game not built!'
             });
@@ -106,14 +105,14 @@ io.of('/ruby').on('connection', function(socket) {
     });
 
     socket.on('reportUserid', function(data) {
-        console.log(data.userid);
-        console.log(connectedUsers[data.userid]);
         var oldSocket = connectedUsers[data.userid];
         var newOrAuthenticatedUser = !oldSocket || oldSocket === data.authid;
 
         if (data.userid && newOrAuthenticatedUser) {
             userid = data.userid;
         } else userid = generateUserid();
+
+        console.log('User ' + userid + ' connected on ' + socket.id);
 
         // Store socket id because XHR polling causes race conditions
         connectedUsers[userid] = socket.id;
@@ -140,10 +139,12 @@ io.of('/ruby').on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
-        console.log('User ' + userid + 'disconnected.');
+        console.log('User ' + userid + ' disconnected from ' + socket.id);
         // Only set to false if user doesn't already have a new socket
-        if (socket.id == connectedUsers[userid]) connectedUsers[userid] = false;
-        console.log(connectedUsers);
+        if (socket.id == connectedUsers[userid]) {
+            connectedUsers[userid] = false;
+            console.log('User ' + userid + ' disconnected completely');
+        }
     });
 
 });
