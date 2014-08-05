@@ -3,9 +3,18 @@ var app = require('http').createServer(),
     spawn = require('child_process').spawn,
     fs = require('fs');
 
+var generateUserid = function() {
+    var id = (Math.random().toString(36)+'00000000000000000').slice(2, 8);
+    if (connectedUsers[id] === undefined) return id;
+    else return generateUserid();
+};
+
+var connectedUsers = {};
+
 io.of('/ruby').on('connection', function(socket) {
 
     var ruby,
+        userid,
         socketOn = false;
 
     socket.on('codeBuild', function(data) {
@@ -94,6 +103,19 @@ io.of('/ruby').on('connection', function(socket) {
                 output: 'Game not built!'
             });
         }
+    });
+
+    socket.on('reportUserid', function(data) {
+        if (data.userid && !connectedUsers[data.userid]) {
+            userid = data.userid;
+        } else userid = generateUserid();
+
+        connectedUsers[userid] = true;
+        socket.emit('confirmUserid', { userid: userid });
+    });
+
+    socket.on('disconnect', function() {
+        connectedUsers[userid] = false;
     });
 
     fs.readFile('games/game.rb', function(err, contents) {
