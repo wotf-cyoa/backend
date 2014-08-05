@@ -12,57 +12,89 @@ exec('IRBRC=\'irb.rc\' irb', function(error, stdout, stderr) {
 
 io.of('/ruby').on('connection', function(socket) {
 
-    var ruby = spawn('irb'),
+    var ruby,
         socketOn = false;
 
-    ruby.stdout.setEncoding('utf8');
-    ruby.stderr.setEncoding('utf8');
-
-    ruby.stdout.on('data', function(data) {
-        console.log('stdout: ' + data);
-        if (socketOn) {
-          socket.emit('terminalOutput', {
-              output: data
-          });
-        }
-    });
-
-    ruby.stderr.on('data', function(data) {
-        console.log('stderr: ' + data);
-        socket.emit('terminalError', {
-            output: data
-        });
-    });
-
-    ruby.on('close', function(code) {
-        console.log('Exit code: ' + code);
-    });
-
-    socket.on('fileLoad', function(data) {
-        socketOn = false;
+    socket.on('codeBuild', function(data) {
         console.log(data);
-        ruby.stdin.write('exec($0)\n');
-        setTimeout(function() {
-            ruby.stdin.write(data.input + '\n');
-            socket.emit('fileLoaded', {
-              output: 'Game loaded.'
+
+        var fileSaveError,
+            codeLoadError;
+
+        // Save file
+        fs.writeFile('games/game.rb', data.fileContent, function(error) {
+            fileSaveError = error;
+
+            // Emit file saved
+            socket.emit('buildStatus', {
+                output: error || 'Code saved.'
             });
-        }, 1000);
+
+            // Check file syntax?
+
+            // Start IRB
+            ruby = spawn('irb');
+
+            ruby.stdout.setEncoding('utf8');
+            ruby.stderr.setEncoding('utf8');
+
+            // Funnel file into IRB
+            socketOn = false;
+            ruby.stdin.write(data.fileContent + '\n', function(error) {
+                codeLoadError = error;
+
+                // Emit code loaded
+                socket.emit('buildStatus', {
+                    output: error || 'Game loaded.'
+                });
+
+                if (!fileSaveError && !codeLoadError) {
+                    socket.emit('buildStatus', {
+                        output: 'Build successful!'
+                    });
+                } else {
+                    socket.emit('terminalError', {
+                        output: 'Build failed!'
+                    });
+                }
+            });
+
+            // Bind events on IRB
+            ruby.stdout.on('data', function(data) {
+                console.log('stdout: ' + data);
+                if (socketOn) {
+                    console.log('socket on');
+                    socket.emit('terminalOutput', {
+                        output: data
+                    });
+                }
+            });
+
+            ruby.stderr.on('data', function(data) {
+                console.log('stderr: ' + data);
+                socket.emit('terminalError', {
+                    output: data
+                });
+            });
+
+            ruby.on('close', function(code) {
+                console.log('Exit code: ' + code);
+            });
+
+        });
     });
 
     socket.on('terminalInput', function(data) {
+        console.log(data);
         socketOn = true;
-        console.log(data);
-        ruby.stdin.write(data.input + '\n');
-    });
-
-    socket.on('fileSave', function(data) {
-        console.log(data);
-        fs.writeFile('games/game.rb', data.fileContent, function(err) {
-            socket.emit('fileSaved', {
-                output: err || 'Code saved.'
+        if (ruby) {
+            ruby.stdin.write(data.input + '\n');
+        }
+        else {
+            socket.emit('terminalError', {
+                output: 'Game not built!'
             });
-        });
+        }
     });
 
     fs.readFile('games/game.rb', function(err, contents) {
