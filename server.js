@@ -133,7 +133,9 @@ io.of('/ruby').on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
+        console.log('User ' + userid + 'disconnected.');
         connectedUsers[userid] = false;
+        console.log(connectedUsers);
     });
 
 });
