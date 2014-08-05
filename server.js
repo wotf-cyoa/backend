@@ -106,6 +106,8 @@ io.of('/ruby').on('connection', function(socket) {
     });
 
     socket.on('reportUserid', function(data) {
+        console.log(data.userid);
+        console.log(connectedUsers[data.userid]);
         if (data.userid && !connectedUsers[data.userid]) {
             userid = data.userid;
         } else userid = generateUserid();
