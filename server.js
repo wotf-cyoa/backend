@@ -1,14 +1,7 @@
 var app = require('http').createServer(),
     io = require('socket.io').listen(app),
-    exec = require('child_process').exec,
     spawn = require('child_process').spawn,
     fs = require('fs');
-
-exec('IRBRC=\'irb.rc\' irb', function(error, stdout, stderr) {
-    console.log(error);
-    console.log(stdout);
-    console.log(stderr);
-});
 
 io.of('/ruby').on('connection', function(socket) {
 
@@ -31,6 +24,12 @@ io.of('/ruby').on('connection', function(socket) {
             });
 
             // Check file syntax?
+
+            // Kill old IRB
+            if (ruby) {
+              oldRuby = ruby;
+              oldRuby.kill();
+            }
 
             // Start IRB
             ruby = spawn('irb');
