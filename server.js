@@ -24,7 +24,7 @@ io.of('/ruby').on('connection', function(socket) {
             codeLoadError;
 
         // Save file
-        fs.writeFile('games/game.rb', data.fileContent, function(error) {
+        fs.writeFile('games/' + userid + '.rb', data.fileContent, function(error) {
             fileSaveError = error;
 
             // Emit file saved
@@ -112,19 +112,28 @@ io.of('/ruby').on('connection', function(socket) {
 
         connectedUsers[userid] = true;
         socket.emit('confirmUserid', { userid: userid });
+
+        fs.readFile('games/' + userid + '.rb', function(error, contents) {
+            if (error) {
+                fs.readFile('games/game.rb', function(error, contents) {
+                    socket.emit('ready', {
+                        output: 'Ready!',
+                        fileContent: contents.toString()
+                    });
+                });
+            } else {
+                socket.emit('ready', {
+                    output: 'Ready! Welcome back.',
+                    fileContent: contents.toString()
+                });
+            }
+        });
     });
 
     socket.on('disconnect', function() {
         connectedUsers[userid] = false;
     });
 
-    fs.readFile('games/game.rb', function(err, contents) {
-        console.log(contents);
-        socket.emit('ready', {
-            output: 'Ready!',
-            fileContent: contents.toString()
-        });
-    });
 });
 
 app.listen(process.env.PORT || 8888);
