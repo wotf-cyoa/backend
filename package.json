@@ -7,6 +7,7 @@
         "url": "git@github.com:wotf-cyoa/backend.git"
     },
     "dependencies": {
-        "socket.io": "1.0.x"
+        "socket.io": "1.0.x",
+        "aws-sdk": "2.0.x"
     }
 }

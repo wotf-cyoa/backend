@@ -1,7 +1,8 @@
 var app = require('http').createServer(),
     io = require('socket.io').listen(app),
     spawn = require('child_process').spawn,
-    fs = require('fs');
+    fs = require('fs'),
+    s3 = require('./s3');
 
 var generateUserid = function() {
     var id = (Math.random().toString(36)+'00000000000000000').slice(2, 8);
@@ -24,7 +25,7 @@ io.of('/ruby').on('connection', function(socket) {
             codeLoadError;
 
         // Save file
-        fs.writeFile('games/' + userid + '.rb', data.fileContent, function(error) {
+        s3.uploadFile(userid + '.rb', data.fileContent, function(error) {
             fileSaveError = error;
 
             // Emit file saved
@@ -130,7 +131,7 @@ io.of('/ruby').on('connection', function(socket) {
             authid: socket.id
         });
 
-        fs.readFile('games/' + userid + '.rb', function(error, contents) {
+        s3.getFile(userid + '.rb', function(error, contents) {
             if (error) {
                 fs.readFile('games/game.rb', function(error, contents) {
                     socket.emit('ready', {
