@@ -13,6 +13,7 @@ exports.getFile = function(fileName, callback) {
     var s3 = new aws.S3();
     var data = { Key: fileName, Bucket: 'wotf-cyoa' };
     s3.getObject(data, function(err, data) {
-        callback(err, data.Body);
+        if (data === null) callback (true, false);
+        else callback(err, data.Body);
     });
 };
