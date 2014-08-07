@@ -24,3 +24,12 @@ To run the Websockets server that executes the game:
 
 Changes to `server.js` require a restart. Simply `Ctrl+C` the
 `node server.js` process and run it again.
+
+To enable S3 uploads of game files (game code will never save unless you do),
+you have to set your `AWS_ACCESS_KEY_ID` and your `AWS_SECRET_ACCESS_KEY`:
+
+    export AWS_ACESS_KEY_ID=xxx
+    export AWS_SECRET_ACCESS_KEY=yyy
+    
+You can set these values in `~/.bash_login` for them to persist. You get them
+from [AWS](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html).
