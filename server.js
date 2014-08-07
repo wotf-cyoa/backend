@@ -89,17 +89,26 @@ io.of('/ruby').on('connection', function(socket) {
                 console.log('Exit code: ' + code);
             });
 
+            ruby.on('exit', function(code) {
+                console.log('Exit code: ' + code);
+                if (code === 0) {
+                    socket.emit('terminalError', {
+                        output: 'Ruby process exited.'
+                    });
+                }
+            });
+
         });
     });
 
     socket.on('terminalInput', function(data) {
         console.log(data);
         socketOn = true;
-        if (ruby) {
+        try {
             ruby.stdin.write(data.input + '\n');
-        } else {
+        } catch (e) {
             socket.emit('terminalError', {
-                output: 'Game not built!'
+                output: 'Couldn\'t talk to ruby. Did you Build your game?'
             });
         }
     });
