@@ -70,7 +70,7 @@ io.of('/ruby').on('connection', function(socket) {
 
             // Bind events on IRB
             ruby.stdout.on('data', function(data) {
-                console.log('stdout: ' + data);
+                console.log(ruby.pid + ' STDOUT: ' + data);
                 if (socketOn) {
                     console.log('socket on');
                     socket.emit('terminalOutput', {
@@ -80,18 +80,18 @@ io.of('/ruby').on('connection', function(socket) {
             });
 
             ruby.stderr.on('data', function(data) {
-                console.log('stderr: ' + data);
+                console.log(ruby.pid + ' STDERR: ' + data);
                 socket.emit('terminalError', {
                     output: data
                 });
             });
 
             ruby.on('close', function(code) {
-                console.log('Exit code: ' + code);
+                console.log(ruby.pid + ' Exit code: ' + code);
             });
 
             ruby.on('exit', function(code) {
-                console.log('Exit code: ' + code);
+                console.log(ruby.pid + ' Exit code: ' + code);
                 if (code === 0) {
                     socket.emit('terminalError', {
                         output: 'Ruby process exited.'
