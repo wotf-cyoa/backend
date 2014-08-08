@@ -159,4 +159,85 @@ io.of('/ruby').on('connection', function(socket) {
 
 });
 
+io.of('/share').on('connection', function(socket) {
+    var ruby,
+        socketOn = false;
+
+    socket.emit('buildStatus', {
+        output: 'Loading game...'
+    });
+
+    fs.readFile('games/example-game.rb', function(error, contents) {
+        if (error) {
+            socket.emit('terminalError', {
+                output: 'Error loading game. Try again later.'
+            });
+        } else {
+            // Start IRB
+            ruby = spawn('irb');
+
+            ruby.stdout.setEncoding('utf8');
+            ruby.stderr.setEncoding('utf8');
+
+            // Funnel file into IRB
+            socketOn = false;
+            ruby.stdin.write(contents + '\n', function(error) {
+                if (error) {
+                    socket.emit('terminalError', {
+                        output: 'Error loading game. Try again later.'
+                    });
+                } else {
+                    // Emit code loaded
+                    socket.emit('buildStatus', {
+                        output: 'Game loaded. Type start() to play.'
+                    });
+                }
+            });
+
+            // Bind events on IRB
+            ruby.stdout.on('data', function(data) {
+                console.log(ruby.pid + ' STDOUT: ' + data);
+                if (socketOn) {
+                    console.log('socket on');
+                    socket.emit('terminalOutput', {
+                        output: data.replace(/^(\b|\s)\w+\(\)(\s\n|\n)/, '')
+                    });
+                }
+            });
+
+            ruby.stderr.on('data', function(data) {
+                console.log(ruby.pid + ' STDERR: ' + data);
+                socket.emit('terminalError', {
+                    output: data
+                });
+            });
+
+            ruby.on('close', function(code) {
+                console.log(ruby.pid + ' Exit code: ' + code);
+            });
+
+            ruby.on('exit', function(code) {
+                console.log(ruby.pid + ' Exit code: ' + code);
+                if (code === 0) {
+                    socket.emit('terminalError', {
+                        output: 'Ruby process exited.'
+                    });
+                }
+            });
+        }
+    });
+
+    socket.on('terminalInput', function(data) {
+        console.log(data);
+        socketOn = true;
+        try {
+            ruby.stdin.write(data.input + '\n');
+        } catch (e) {
+            socket.emit('terminalError', {
+                output: 'Couldn\'t talk to ruby. Did you Build your game?'
+            });
+        }
+    });
+});
+
 app.listen(process.env.PORT || 8888);
