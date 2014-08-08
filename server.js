@@ -74,7 +74,7 @@ io.of('/ruby').on('connection', function(socket) {
                 if (socketOn) {
                     console.log('socket on');
                     socket.emit('terminalOutput', {
-                        output: data
+                        output: data.replace(/^(\b|\s)\w+\(\)(\s\n|\n)/, '')
                     });
                 }
             });
