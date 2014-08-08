@@ -234,7 +234,7 @@ var players = io.of('/share').on('connection', function(socket) {
             ruby.stdin.write(data.input + '\n');
         } catch (e) {
             socket.emit('terminalError', {
-                output: 'Couldn\'t talk to ruby. Did you Build your game?'
+                output: 'Couldn\'t talk to ruby. Try refreshing the browser.'
             });
         }
     });
