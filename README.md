@@ -18,12 +18,12 @@ Install the dependencies with
 
     npm install
 
-To run the Websockets server that executes the game:
+To run the Websockets server that executes the game with the project's IRB config:
 
-    node server.js
+    IRBRC=irb.rc node server.js
 
 Changes to `server.js` require a restart. Simply `Ctrl+C` the
-`node server.js` process and run it again.
+`IRBRC=irb.rc node server.js` process and run it again.
 
 To enable S3 uploads of game files (game code will never save unless you do),
 you have to set your `AWS_ACCESS_KEY_ID` and your `AWS_SECRET_ACCESS_KEY`:
