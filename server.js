@@ -12,7 +12,7 @@ var generateUserid = function() {
 
 var connectedUsers = {};
 
-io.of('/ruby').on('connection', function(socket) {
+var coders = io.of('/ruby').on('connection', function(socket) {
 
     var ruby,
         userid,
@@ -159,7 +159,7 @@ io.of('/ruby').on('connection', function(socket) {
 
 });
 
-io.of('/share').on('connection', function(socket) {
+var players = io.of('/share').on('connection', function(socket) {
     var ruby,
         socketOn = false;
 
@@ -237,6 +237,14 @@ io.of('/share').on('connection', function(socket) {
                 output: 'Couldn\'t talk to ruby. Did you Build your game?'
             });
         }
+    });
+
+    socket.on('resetUsersForLab', function() {
+        players.emit('clearUserid');
+    });
+
+    socket.on('clearUseridDone', function(data) {
+        if (data !== '') console.log(data + ' not clear!');
     });
 });
 
